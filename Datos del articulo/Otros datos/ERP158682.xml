@@ -1,0 +1,46 @@
+<STUDY_SET>
+<STUDY accession="ERP158682" alias="2e7b7597-2ad7-4099-86a9-3cbf8be39e60" center_name="Christian-Albrechts-University Kiel">
+  <IDENTIFIERS>
+    <PRIMARY_ID>ERP158682</PRIMARY_ID>
+    <SECONDARY_ID>PRJEB73981</SECONDARY_ID>
+    <SUBMITTER_ID namespace="Christian-Albrechts-University Kiel">2e7b7597-2ad7-4099-86a9-3cbf8be39e60</SUBMITTER_ID>
+  </IDENTIFIERS>
+  <DESCRIPTOR>
+    <STUDY_TITLE>Metabolic modeling reveals the aging-associated decline of host-microbiome metabolic interactions in mice</STUDY_TITLE>
+    <STUDY_ABSTRACT>Aging is the predominant cause of morbidity and mortality in industrialized countries. The specific molecular mechanisms that drive aging are poorly understood, especially the contribution of the microbiota in these processes. Here, we combined multi-omics with metabolic modeling in mice to comprehensively characterize host–microbiome interactions and how they are affected by aging. Our findings reveal a complex dependency of host metabolism on microbial functions, including previously known as well as novel interactions. We observed a pronounced reduction in metabolic activity within the aging microbiome, which we attribute to reduced beneficial interactions in the microbial community and a reduction in its metabolic output. These microbial changes coincided with a corresponding downregulation of key host pathways predicted by our model to be dependent on the microbiome that are crucial for maintaining intestinal barrier function, cellular replication, and homeostasis. Our results elucidate microbiome–host interactions that potentially influence host aging processes, focusing on microbial nucleotide metabolism as a pivotal factor in aging dynamics. These pathways could serve as future targets for the development of microbiome-based therapies against aging.</STUDY_ABSTRACT>
+    <STUDY_DESCRIPTION>Aging is the predominant cause of morbidity and mortality in industrialized countries. The specific molecular mechanisms that drive aging are poorly understood, especially the contribution of the microbiota in these processes. Here, we combined multi-omics with metabolic modeling in mice to comprehensively characterize host–microbiome interactions and how they are affected by aging. Our findings reveal a complex dependency of host metabolism on microbial functions, including previously known as well as novel interactions. We observed a pronounced reduction in metabolic activity within the aging microbiome, which we attribute to reduced beneficial interactions in the microbial community and a reduction in its metabolic output. These microbial changes coincided with a corresponding downregulation of key host pathways predicted by our model to be dependent on the microbiome that are crucial for maintaining intestinal barrier function, cellular replication, and homeostasis. Our results elucidate microbiome–host interactions that potentially influence host aging processes, focusing on microbial nucleotide metabolism as a pivotal factor in aging dynamics. These pathways could serve as future targets for the development of microbiome-based therapies against aging.</STUDY_DESCRIPTION>
+    <CENTER_PROJECT_NAME>Baseline Aging</CENTER_PROJECT_NAME>
+    <STUDY_TYPE existing_study_type="Other"/>
+  </DESCRIPTOR>
+  <STUDY_LINKS>
+    <STUDY_LINK>
+      <XREF_LINK>
+        <DB>ENA-SUBMISSION</DB>
+        <ID>ERA29490312</ID>
+      </XREF_LINK>
+    </STUDY_LINK>
+    <STUDY_LINK>
+      <XREF_LINK>
+        <DB>ENA-FASTQ-FILES</DB>
+        <ID><![CDATA[https://www.ebi.ac.uk/ena/portal/api/filereport?accession=ERP158682&result=read_run&fields=run_accession,fastq_ftp,fastq_md5,fastq_bytes]]></ID>
+      </XREF_LINK>
+    </STUDY_LINK>
+    <STUDY_LINK>
+      <XREF_LINK>
+        <DB>ENA-SUBMITTED-FILES</DB>
+        <ID><![CDATA[https://www.ebi.ac.uk/ena/portal/api/filereport?accession=ERP158682&result=read_run&fields=run_accession,submitted_ftp,submitted_md5,submitted_bytes,submitted_format]]></ID>
+      </XREF_LINK>
+    </STUDY_LINK>
+  </STUDY_LINKS>
+  <STUDY_ATTRIBUTES>
+    <STUDY_ATTRIBUTE>
+      <TAG>ENA-FIRST-PUBLIC</TAG>
+      <VALUE>2024-03-27</VALUE>
+    </STUDY_ATTRIBUTE>
+    <STUDY_ATTRIBUTE>
+      <TAG>ENA-LAST-UPDATE</TAG>
+      <VALUE>2024-03-27</VALUE>
+    </STUDY_ATTRIBUTE>
+  </STUDY_ATTRIBUTES>
+</STUDY>
+</STUDY_SET>

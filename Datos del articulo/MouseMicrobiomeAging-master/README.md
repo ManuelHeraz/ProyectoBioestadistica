@@ -1,0 +1,12 @@
+# Metabolic modeling reveals the aging-associated decline of host-microbiome metabolic interactions in mice
+
+Collection of R-scripts to support publication: [10.1101/2024.03.28.587009](https://biorxiv.org/cgi/content/short/2024.03.28.587009v1)
+
+### The data required to use with these scripts can be obtained from following sources:
+Metagenomic raw read and MAG assembly data was deposited in the European Nucleotide Archive (ENA) under BioProject PRJEB73981 (https://ebi.ac.uk/ena/browser/view/PRJEB73981). Individual accession numbers for each MAG were listed in Supplementary Table S1.2. Gene expression data was published in the GEO database under record GSE262290 (https://ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE262290). Metabolomics data has been made available at the MassIVE database (https://massive.ucsd.edu) with Identifiers MSV000094409, MSV000094410 and MSV000094436. The metamodel can be found under accession MODEL2310020001 in the BioModels database (https://ebi.ac.uk/biomodels/MODEL2310020001). Detailed sample metadata, the microbial metabolic models and supplementary resources as well as source code used for data analysis were deposited in a zenodo record (https://doi.org/10.5281/zenodo.10844503).
+
+### Study Abstract
+Aging is the predominant cause of morbidity and mortality in industrialized countries. The specific molecular mechanisms that drive aging are poorly understood, especially the contribution of the microbiota in these processes. Here, we combined multi-omics with metabolic modeling in mice to comprehensively characterize host–microbiome interactions and how they are affected by aging. Our findings reveal a complex dependency of host metabolism on microbial functions, including previously known as well as novel interactions. We observed a pronounced reduction in metabolic activity within the aging microbiome, which we attribute to reduced beneficial interactions in the microbial community and a reduction in its metabolic output. These microbial changes coincided with a corresponding downregulation of key host pathways predicted by our model to be dependent on the microbiome that are crucial for maintaining intestinal barrier function, cellular replication, and homeostasis. Our results elucidate microbiome–host interactions that potentially influence host aging processes, focusing on microbial nucleotide metabolism as a pivotal factor in aging dynamics. These pathways could serve as future targets for the development of microbiome-based therapies against aging.
+
+  
+  

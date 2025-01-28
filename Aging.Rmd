@@ -1,0 +1,263 @@
+---
+title: "Aging"
+output: html_document
+date: "2025-01-28"
+---
+
+```{r setup, include=TRUE}
+
+library(data.table)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(biomaRt)
+library(ggplot2)
+library(ggpubr)
+library(pheatmap)
+
+# Leer los datos con data.table
+datos <- fread("GSE262290_brain_RNA_gene_counts.tsv", sep = "\t", header = TRUE)
+
+# Conexión a Ensembl (con comprobaciones)
+ensembl <- tryCatch({
+  useMart("ensembl")
+}, error = function(e) {
+  stop("Error al conectar con Ensembl: ", e$message)
+})
+
+ensembl <- tryCatch({
+  useDataset("mmusculus_gene_ensembl", mart = ensembl)
+}, error = function(e) {
+  stop("Error al seleccionar el dataset: ", e$message)
+})
+
+# Consulta a BioMart en lotes (con comprobaciones en cada lote y manejo de errores)
+lotes <- split(datos$V1, ceiling(seq_along(datos$V1)/1000)) # Usamos datos$V1 directamente
+
+nombres_genes_lista <- lapply(lotes, function(lote) {
+  tryCatch({
+    getBM(
+      attributes = c("ensembl_gene_id", "hgnc_symbol"),
+      filters = "ensembl_gene_id",
+      values = lote,
+      mart = ensembl
+    )
+  }, error = function(e) {
+    print(paste("Error en la consulta a BioMart para un lote:", e$message))
+    data.frame() # Devuelve un data frame vacío en caso de error
+  })
+})
+
+nombres_genes <- rbindlist(nombres_genes_lista)
+
+# Comprobación crucial: ¿Se encontraron resultados *después* de la consulta por lotes?
+if (nrow(nombres_genes) == 0) {
+  print(head(datos$V1, 50)) # Imprime IDs para inspección *antes* del error
+  stop("No se encontraron nombres de genes. Verifica los IDs Ensembl (formato, versión) y la conexión a BioMart.")
+}
+
+# Unir los datos (usando left_join y la clave correcta)
+datos_con_nombres <- left_join(datos, nombres_genes, by = c("V1" = "ensembl_gene_id"))
+
+# Mostrar una muestra de los datos
+head(datos_con_nombres, 10)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# Preparación de los datos (con nombres de genes)
+edades <- as.numeric(gsub("([0-9]+)M.*", "\\1", colnames(datos)[2:ncol(datos)]))
+
+datos_transpuestos <- data.frame(t(datos[, 2:ncol(datos)]))
+
+# Asignar nombres de genes a las filas del data frame transpuesto (CORREGIDO)
+rownames(datos_transpuestos) <- colnames(datos)[2:ncol(datos)] # Usar nombres de columnas originales
+
+colnames(datos_transpuestos) <- datos$V1 # Usar los nombres de genes como nombres de columnas
+datos_transpuestos$edad <- edades
+
+# Convertir los datos de expresión génica a numéricos
+datos_transpuestos[, 1:(ncol(datos_transpuestos) - 1)] <- apply(datos_transpuestos[, 1:(ncol(datos_transpuestos) - 1)], 2, as.numeric)
+
+
+# Convertir los datos de expresión génica a numéricos
+datos_transpuestos[, 1:(ncol(datos_transpuestos) - 1)] <- apply(datos_transpuestos[, 1:(ncol(datos_transpuestos) - 1)], 2, as.numeric)
+
+matriz_correlacion <- cor(datos_transpuestos[, 1:(ncol(datos_transpuestos) - 1)], datos_transpuestos$edad)
+
+# Identificar los 10 genes con la correlación más significativa (valor absoluto más alto)
+
+# Asegurarse de que matriz_correlacion tenga nombres de fila (genes)
+if (is.null(rownames(matriz_correlacion))) {
+  rownames(matriz_correlacion) <- colnames(datos_transpuestos)[1:(ncol(datos_transpuestos)-1)] # Usa nombres de genes
+}
+
+correlaciones_ordenadas <- sort(abs(matriz_correlacion[, 1]), decreasing = TRUE) # Corregido: ordenar por la primera columna (correlación con la edad)
+top_10_genes <- names(correlaciones_ordenadas[1:10])
+
+# Crear gráficos de dispersión para los 10 genes principales
+for (gen in top_10_genes) {
+  gen_index <- which(colnames(datos_transpuestos) == gen)
+
+  if (length(gen_index) > 0) { # Verifica si se encontró el índice del gen
+    correlation_value <- matriz_correlacion[gen, 1] # Obtener el valor de correlación (usando nombre de gen)
+
+    print(ggplot(datos_transpuestos, aes(x = edad, y = datos_transpuestos[, gen_index])) +
+      geom_point() +
+      geom_smooth(method = "lm") +
+      labs(
+        title = paste("Correlación entre la edad y la expresión del gen", gen, "\nCorrelación:", round(correlation_value, 3)), # Incluir valor de correlación en el título
+        x = "Edad (meses)",
+        y = "Expresión génica"
+      ) +
+      theme_bw())
+  } else {
+    print(paste("No se encontró el índice para el gen:", gen))
+  }
+}
+
+# Identificar los 10 genes con la correlación más significativa (valor absoluto más alto)
+correlaciones_ordenadas <- sort(abs(matriz_correlacion[, 1]), decreasing = TRUE)
+top_10_genes <- names(correlaciones_ordenadas[1:10])
+
+# Crear una tabla para almacenar los resultados
+tabla_resultados <- data.frame(
+  ID_gen = top_10_genes,
+  Correlacion = numeric(10),
+  Valor_p = numeric(10)
+)
+
+# Calcular la correlación y el valor p para cada gen
+for (i in 1:10) {
+  gen <- top_10_genes[i]
+  gen_index <- which(colnames(datos_transpuestos) == gen)
+
+  if (length(gen_index) > 0) {
+    correlation_result <- cor.test(datos_transpuestos$edad, datos_transpuestos[, gen_index])
+    tabla_resultados$Correlacion[i] <- correlation_result$estimate
+    tabla_resultados$Valor_p[i] <- correlation_result$p.value
+  } else {
+    print(paste("No se encontró el índice para el gen:", gen))
+  }
+}
+
+# Mostrar la tabla de resultados
+print(tabla_resultados)
+
+```
+
+
+```{r}
+# Identificar los 10 genes con la correlación negativa más significativa
+correlaciones_negativas <- matriz_correlacion[, 1]  # Extraer la columna de correlaciones con la edad
+correlaciones_ordenadas_neg <- sort(correlaciones_negativas, decreasing = FALSE) # Ordenar de menor a mayor (negativo a positivo)
+top_10_genes_neg <- names(correlaciones_ordenadas_neg[1:10])
+
+# Crear una tabla para almacenar los resultados de correlaciones negativas
+tabla_resultados_neg <- data.frame(
+  ID_gen = top_10_genes_neg,
+  Correlacion = numeric(10),
+  Valor_p = numeric(10)
+)
+
+# Calcular la correlación y el valor p para cada gen con correlación negativa
+for (i in 1:10) {
+  gen <- top_10_genes_neg[i]
+  gen_index <- which(colnames(datos_transpuestos) == gen)
+
+  if (length(gen_index) > 0) {
+    correlation_result <- cor.test(datos_transpuestos$edad, datos_transpuestos[, gen_index])
+    tabla_resultados_neg$Correlacion[i] <- correlation_result$estimate
+    tabla_resultados_neg$Valor_p[i] <- correlation_result$p.value
+  } else {
+    print(paste("No se encontró el índice para el gen:", gen))
+  }
+}
+
+# Mostrar la tabla de resultados de correlaciones negativas
+print(tabla_resultados_neg)
+
+# Crear gráficos de dispersión para los 10 genes con correlación negativa
+for (gen in top_10_genes_neg) {
+  gen_index <- which(colnames(datos_transpuestos) == gen)
+
+  if (length(gen_index) > 0) {
+    correlation_value <- matriz_correlacion[gen, 1]
+
+    print(ggplot(datos_transpuestos, aes(x = edad, y = datos_transpuestos[, gen_index])) +
+      geom_point() +
+      geom_smooth(method = "lm") +
+      labs(
+        title = paste("Correlación entre la edad y la expresión del gen", gen, "\nCorrelación:", round(correlation_value, 3)),
+        x = "Edad (meses)",
+        y = "Expresión génica"
+      ) +
+      theme_bw())
+  } else {
+    print(paste("No se encontró el índice para el gen:", gen))
+  }
+}
+
+
+
+```
+
+```{r}
+# Identificar los 5 genes con mayor correlación positiva
+correlaciones_positivas <- matriz_correlacion[, 1]
+correlaciones_ordenadas_pos <- sort(correlaciones_positivas, decreasing = TRUE)
+top_5_genes_pos <- names(correlaciones_ordenadas_pos[1:5])
+
+# Identificar los 5 genes con mayor correlación negativa
+correlaciones_negativas <- matriz_correlacion[, 1]
+correlaciones_ordenadas_neg <- sort(correlaciones_negativas, decreasing = FALSE)
+top_5_genes_neg <- names(correlaciones_ordenadas_neg[1:5])
+
+# Combinar los genes seleccionados
+top_10_genes <- c(top_5_genes_pos, top_5_genes_neg)
+
+# Crear una tabla para almacenar los resultados (para los 10 genes)
+tabla_resultados <- data.frame(
+  ID_gen = top_10_genes,
+  Correlacion = numeric(10),
+  Valor_p = numeric(10)
+)
+
+# Calcular la correlación y el valor p para cada gen (para los 10 genes)
+for (i in 1:10) {
+  gen <- top_10_genes[i]
+  gen_index <- which(colnames(datos_transpuestos) == gen)
+
+  if (length(gen_index) > 0) {
+    correlation_result <- cor.test(datos_transpuestos$edad, datos_transpuestos[, gen_index])
+    tabla_resultados$Correlacion[i] <- correlation_result$estimate
+    tabla_resultados$Valor_p[i] <- correlation_result$p.value
+  } else {
+    print(paste("No se encontró el índice para el gen:", gen))
+  }
+}
+
+# Mostrar la tabla de resultados
+print(tabla_resultados)
+
+# Crear boxplots para los 10 genes
+for (gen in top_10_genes) {
+  gen_index <- which(colnames(datos_transpuestos) == gen)
+
+  if (length(gen_index) > 0) {
+    print(
+      ggplot(datos_transpuestos, aes(x = etapa_vida, y = datos_transpuestos[, gen_index])) +
+        geom_boxplot() +
+        labs(
+          title = paste("Expresión del gen", gen, "por etapa de vida"),
+          x = "Etapa de vida",
+          y = "Expresión génica"
+        ) +
+        theme_bw()
+    )
+  }
+}
+
+```
